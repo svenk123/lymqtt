@@ -1,0 +1,10 @@
+# Publisher (DTLS/PSK, QoS1)
+mqttsn-pub --host 192.0.2.10 --port 1884 --dtls \
+  --psk-identity client1 --psk-key 00112233AABBCCDD \
+  --client-id sensor-01 --topic tele/sensor/temp --qos 1 \
+  --message "22.5"
+
+# Subscriber (DTLS/PSK)
+mqttsn-sub --host 192.0.2.10 --port 1884 --dtls \
+  --psk-identity client2 --psk-key 00112233AABBCCDD \
+  --client-id monitor-01 --topic tele/sensor/temp --qos 1 --recv-timeout 10

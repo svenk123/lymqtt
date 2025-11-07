@@ -1,0 +1,22 @@
+# Build artifacts
+build/
+bin/
+obj/
+*.o
+*.a
+*.so
+*.dll
+*.exe
+*.out
+*.log
+
+# Editors/OS
+*.swp
+*.swo
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Dependency/externals (falls generiert)
+#vendor/build/
