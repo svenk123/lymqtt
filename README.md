@@ -197,6 +197,7 @@ Output format: Each received message is printed as `TOPIC: MESSAGE` on a new lin
 - `--key PATH` - Client private key file path
 - `--username USER` - Username for authentication (MQTT only)
 - `--password PASS` - Password for authentication (MQTT only)
+- `--once` - Quit after first message
 - `--verbose` - Enable verbose logging
 - `--help` - Show usage information
 
