@@ -157,7 +157,7 @@ int main(int argc, char **argv) {
         continue;
 
       /* Output: Topic name followed by message */
-      fprintf(stdout, "%s: ", matched_topic);
+      fprintf(stdout, "%s ", matched_topic);
       fwrite(pl, 1, pllen, stdout);
       fputc('\n', stdout);
       fflush(stdout);
@@ -167,6 +167,12 @@ int main(int argc, char **argv) {
         int L = mqtt_encode_puback(ack, sizeof(ack), mid);
         if (L > 0)
           net_tls_send(&c.net, ack, L);
+      }
+
+      /* If --once is set, exit after first message */
+      if (cli.once) {
+        mqtt_client_close(&c);
+        return EXIT_OK;
       }
     } /* else: ignore PINGRESP etc. */
   }

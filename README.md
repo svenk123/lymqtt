@@ -33,23 +33,23 @@ The package includes the following command-line programs:
 
 ### Step 1: Download and Build mbedTLS
 
-1. Download mbedTLS (version 2.16.1 or compatible):
+1. Download mbedTLS (version 3.6.5 or compatible):
    ```bash
    cd ..
-   wget https://github.com/Mbed-TLS/mbedtls/archive/v2.16.1.tar.gz
-   tar xzf v2.16.1.tar.gz
-   mv mbedtls-2.16.1 mbedtls-2.16.1_lymqtt
-   cd mbedtls-2.16.1_lymqtt
+   wget https://github.com/Mbed-TLS/mbedtls/releases/download/mbedtls-3.6.5/mbedtls-3.6.5.tar.bz2
+   bzip2 -cd mbedtls-3.6.5.tar.bz2 | tar xvf -
+   mv mbedtls-3.6.5 mbedtls-3.6.5_lymqtt
+   cd mbedtls-3.6.5_lymqtt
    ```
 
 2. Copy the provided configuration file:
    ```bash
-   cp ../lymqtt/mbedtls_config.h include/mbedtls/config.h
+   cp ../lymqtt/mbedtls_config-3-6-5.h include/mbedtls/mbedtls_config.h
    ```
 
 3. Build mbedTLS:
    ```bash
-   make
+   make lib
    ```
 
    This will create the mbedTLS libraries in the `library/` directory.

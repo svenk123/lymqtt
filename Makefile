@@ -35,7 +35,7 @@ LIBS    ?=
 
 ifeq ($(MBEDTLS_LIBS),)
 # Fallback, falls pkg-config fehlt – ggf. anpassen:
-MBEDTLSDIR=../mbedtls-2.16.1_lymqtt
+MBEDTLSDIR=../mbedtls-3.6.5_lymqtt
 MBEDTLS_CFLAGS += -I$(MBEDTLSDIR)/include
 MBEDTLS_LIBS   += -lmbedtls -lmbedx509 -lmbedcrypto
 LDFLAGS += -L$(MBEDTLSDIR)/library

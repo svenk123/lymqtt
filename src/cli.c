@@ -67,7 +67,7 @@ void usage_sub(const char *p) {
       "            [--tls | --dtls] [--psk-identity I --psk-key HEX | --ca CA "
       "--cert CERT --key KEY]\n"
       "            [--username U --password P]\n"
-      "            [--timeout S] [--recv-timeout S] [--verbose]\n"
+      "            [--timeout S] [--recv-timeout S] [--verbose] [--once]\n"
       "            --topic kann mehrfach angegeben werden\n",
       p);
 }
@@ -214,6 +214,7 @@ int parse_sub_args(int argc, char **argv, cli_sub_t *out) {
   common_defaults(&out->common);
   out->match = MATCH_EXACT;
   out->recv_timeout = 30;
+  out->once = 0;
 
   for (int i = 1; i < argc; ++i) {
     int r = parse_common(&i, argc, argv, &out->common);
@@ -242,6 +243,8 @@ int parse_sub_args(int argc, char **argv, cli_sub_t *out) {
     } else if (!strcmp(argv[i], "--recv-timeout") && i + 1 < argc) {
       if (to_int(argv[++i], &out->recv_timeout))
         return -1;
+    } else if (!strcmp(argv[i], "--once")) {
+      out->once = 1;
     } else {
       log_err("Unknown option: %s", argv[i]);
       usage_sub(argv[0]);

@@ -64,12 +64,43 @@ int mqtt_client_connect(mqtt_client_t *c, const char *host, int port,
   uint8_t rx[256];
   int r = mqtt_client_recv_raw(c, rx, sizeof(rx), c->op_timeout_s * 1000);
 
-  if (r <= 0)
+  if (r <= 0) {
+    log_err("CONNACK recv failed: r=%d", r);
     return -1;
+  }
+
+  /* Ensure we have at least the minimum CONNACK packet size */
+  if (r < 4) {
+    log_err("CONNACK packet too short: received %d bytes, expected at least 4", r);
+    /* Try to read more data if available */
+    int r2 = mqtt_client_recv_raw(c, rx + r, sizeof(rx) - r, 1000);
+    if (r2 > 0) {
+      r += r2;
+      log_info("Read additional %d bytes, total=%d", r2, r);
+    }
+    if (r < 4) {
+      return -1;
+    }
+  }
 
   int sp = 0, rc = 0;
-  if (mqtt_decode_connack(rx, r, &sp, &rc) != 0 || rc != 0) {
-    log_err("CONNACK error rc=%d", rc);
+  if (mqtt_decode_connack(rx, r, &sp, &rc) != 0) {
+    log_err("CONNACK decode failed: received %d bytes", r);
+    log_err("First bytes: 0x%02x 0x%02x 0x%02x 0x%02x", 
+            rx[0], rx[1], rx[2], rx[3]);
+    return -1;
+  }
+  
+  if (rc != 0) {
+    const char *rc_str = "Unknown";
+    switch (rc) {
+      case 1: rc_str = "Unacceptable protocol version"; break;
+      case 2: rc_str = "Identifier rejected"; break;
+      case 3: rc_str = "Server unavailable"; break;
+      case 4: rc_str = "Bad user name or password"; break;
+      case 5: rc_str = "Not authorized"; break;
+    }
+    log_err("CONNACK error: rc=%d (%s)", rc, rc_str);
     return -1;
   }
 

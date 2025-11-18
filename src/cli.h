@@ -73,6 +73,7 @@ typedef struct {
   cli_common_t common;
   match_t match;
   int recv_timeout; /* seconds */
+  int once; /* if set, exit after first message */
 } cli_sub_t;
 
 /* Parser; on error: -1 and Usage on stderr. */

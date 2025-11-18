@@ -25,7 +25,6 @@
 /* MQTT-SN Client-Highlevel: Connection build, REGISTER, SUBSCRIBE, PUBLISH,
  * PUBACK, DISCONNECT. Simple Retry-/Timeout logic, QoS 0/1, QoS -1
  * (Fire&Forget). */
-
 typedef struct {
   net_dtls_t net;
   const char *client_id;

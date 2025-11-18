@@ -16,6 +16,7 @@
  *
  *****************************************************************************/
 #include "mqtt_proto.h"
+#include "util.h"
 #include <string.h>
 
 /* Remaining Length (MQTT variable integer) */
@@ -162,7 +163,8 @@ int mqtt_decode_connack(const uint8_t *buf, size_t len, int *session_present, in
     if (rl_read(buf+1, len-1, &rlen, &rn))
         return -1;
 
-    if (2+rn+rlen > len)
+    /* Check if we have enough bytes: Fixed Header (1) + Remaining Length (rn) + Variable Header (2) */
+    if (1 + rn + 2 > len)
         return -1;
 
     size_t off=1+rn;
@@ -343,8 +345,8 @@ int mqtt_extract_topic_msgid(const uint8_t *buf, size_t len,
     if (qos>0) { 
         if (pos+2>len)
             return -1;
-            *msg_id = rd16(buf+pos);
-            pos+=2;
+        *msg_id = rd16(buf+pos);
+        pos+=2;
     } else {
         *msg_id=0;
     }

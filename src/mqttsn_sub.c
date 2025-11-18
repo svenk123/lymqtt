@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <string.h>
 
-static volatile int g_stop = 0;
+static volatile sig_atomic_t g_stop = 0;
 static void on_sig(int s) {
   (void)s;
   g_stop = 1;
@@ -36,8 +36,13 @@ typedef struct {
 } topic_map_t;
 
 int main(int argc, char **argv) {
-  signal(SIGINT, on_sig);
-  signal(SIGTERM, on_sig);
+  /* Use sigaction for reliable signal handling */
+  struct sigaction sa;
+  sa.sa_handler = on_sig;
+  sigemptyset(&sa.sa_mask);
+  sa.sa_flags = 0;
+  sigaction(SIGINT, &sa, NULL);
+  sigaction(SIGTERM, &sa, NULL);
 
   cli_sub_t cli;
   if (parse_sub_args(argc, argv, &cli) != 0)
@@ -126,8 +131,15 @@ int main(int argc, char **argv) {
       return EXIT_OK;
     }
 
-    int wait = 200; /* Poll in 200ms-chunks, to respect g_stop */
+    int wait = 100; /* Poll in 100ms-chunks, to respect g_stop more frequently */
     int r = mqttsn_client_recv(&c, buf, sizeof(buf), wait);
+    
+    /* Check g_stop again after recv (may have been interrupted by signal) */
+    if (g_stop) {
+      log_info("Abort signal received.");
+      mqttsn_client_close(&c);
+      return EXIT_OK;
+    }
     if (r < 0) {
       log_err("recv error.");
       mqttsn_client_close(&c);
@@ -185,6 +197,12 @@ int main(int argc, char **argv) {
         fwrite(&buf[pos], 1, r - pos, stdout);
         fputc('\n', stdout);
         fflush(stdout);
+
+        /* If --once is set, exit after first message */
+        if (cli.once) {
+          mqttsn_client_close(&c);
+          return EXIT_OK;
+        }
 
         /* If single receive with old behavior: terminate
          * (Backward compatibility) Only if exactly one topic is subscribed
